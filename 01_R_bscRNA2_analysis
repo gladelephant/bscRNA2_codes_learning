@@ -1,0 +1,11 @@
+#bscRNA2获取表达矩阵
+#原始表达矩阵,UMI
+GetAssayData(bscRNA2,slot="counts",assay="RNA")
+#标准化之后的表达矩阵
+GetAssayData(bscRNA2,slot="data",assay="RNA")
+#中心化之后的表达矩阵
+GetAssayData(bscRNA2,slot="scale.data",assay="RNA")
+##bscRNA2删除meta.data的无用列
+#删除列
+bscRNA2@meta.data$RNA_snn_res.0.5<-NULL
+bscRNA2<-bscRNA2@meta.data[,-21:-27]
