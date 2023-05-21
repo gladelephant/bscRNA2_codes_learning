@@ -1,0 +1,56 @@
+#
+I have the following codes running well. 
+
+df<-cbind(df,as.data.frame(pcscRNA2@active.ident))
+colnames(df)<-c("UMAP_1","UMAP_2","cluster")
+得到了df名称的数据框，head(df)如下：
+                       UMAP_1    UMAP_2 cluster
+CC1_AAACCCAAGGATAATC-1 -8.047248 -2.306045       8
+CC1_AAACGCTCAGGACTTT-1  4.856904  3.962987       4
+CC1_AAACGCTTCTTGGCTC-1 -7.108414 -2.942376       8
+CC1_AAAGAACCACACGCCA-1 -7.412961 -2.787216       8
+CC1_AAAGGATTCCTCGATC-1 -7.533860 -1.919701       2
+CC1_AAAGGTACAGACAATA-1 -7.156748 -2.524583       8
+
+接下来, 我使用下面的函数绘制了Dimplot
+paired<-brewer.pal(12, "Paired")
+set3<-brewer.pal(12, "Set3")[-2]
+cluster_color<- c("#39588d",paired,set3)
+
+ggplot(umap_df, aes(x = UMAP_1, y = UMAP_2, color = cluster)) +
+  geom_point(size = 1e-5) +
+  theme_classic() +
+  scale_color_manual(values = cluster_color) +
+  theme(
+    legend.title = element_blank(),
+    legend.text = element_text(size = 20, color = "black"),
+  ) +
+  guides(colour = guide_legend(override.aes = list(size = 8)))
+
+Please help me revise the above codes. I want to add a dotted line in the dimplot which encloses the points of clusters of (3,10,12,16, 19,21,22) together aiming to highlight their boundary.
+
+#embedding_extraction
+df<-pcscRNA2@reductions$umap@cell.embeddings
+df<-cbind(df,as.data.frame(pcscRNA2@active.ident))
+colnames(df)<-c("UMAP_1","UMAP_2","cluster")
+#color_setting
+paired<-brewer.pal(12, "Paired")
+set3<-brewer.pal(12, "Set3")[-2]
+cluster_color<- c("#39588d",paired,set3)
+#chull
+df_cluster8 <- df %>% filter(cluster == 8)
+hull_df <- df_cluster8[chull(df_cluster8$UMAP_1, df_cluster8$UMAP_2), ]
+dev.off()
+#dimplot
+ggplot(df, aes(x = UMAP_1, y = UMAP_2, color = cluster)) +
+  geom_point(size = 1e-5) +
+  theme_classic() +
+  scale_color_manual(values = cluster_color) +
+  theme(
+    legend.title = element_blank(),
+    legend.text = element_text(size = 20, color = "black"),
+  ) +
+  guides(colour = guide_legend(override.aes = list(size = 8))) +
+  geom_polygon(data = hull_df, aes(x = UMAP_1, y = UMAP_2), 
+               color = "navyblue", size = 1, fill = NA, 
+               linetype = "dotted", lineend = "round")
